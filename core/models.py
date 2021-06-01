@@ -9,7 +9,6 @@ class Lista(models.Model):
     usuario =  models.ForeignKey(User,models.CASCADE)
     data_criacao = models.DateTimeField(auto_now=True)
 
-
     def get_data_evento(self):
         return self.data_evento.strftime('%d/%m/%Y')
 class Itens(models.Model):

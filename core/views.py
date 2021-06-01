@@ -48,9 +48,9 @@ def submit_login(request):
             usuario = authenticate(username=username,password=password)
             if usuario is not None:
                 login(request,usuario)
-                return redirect('/')
-            else:
                 messages.error(request,"Usuário ou senha invalido")
+            else:
+                messages.error(request, "Usuário ou senha invalido")
         else:
             email = request.POST.get('email')
             print("aqui")
@@ -383,9 +383,10 @@ def salvarToken(request):
     import requests
     if request.method == "POST":
         response = json.loads(request.body)
+        print(response)
         nome = response["usuario"]
         senha = response["senha"]
-        response = requests.post("https://desafioapilista.herokuapp.com/^login/", None,
+        response = requests.post("http://127.0.0.1:8000/^login/", None,
                                  {"username": str(nome), "password": str(senha)}).json()
         usuario = authenticate(username=nome, password=senha)
         if usuario is not None:
@@ -528,6 +529,7 @@ def resposta_id(request,id):
     if request.method == "PUT":
         respostas = Respostas.objects.get(id=id)
         response = json.loads(request.body)
+
         idItem = response["idItem"]
         resposta = response["resposta"]
 
@@ -592,7 +594,7 @@ def acao(request):
     import requests
     payload ={"idItem":"4","resposta":"alooo","token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6ImFkbWluIiwiZXhwIjoxNjIyMDY4NjM5LCJlbWFpbCI6IiJ9.NToyMSaSnXGDW3GUpNqFFwmKwQ8leGYMOLpMv1Z0l7c"}
 
-    resposta = requests.post("https://desafioapilista.herokuapp.com/resposta/1", data=payload)
+    resposta = requests.post("http://127.0.0.1:8000/resposta/1", data=payload)
     print(resposta)
 
 

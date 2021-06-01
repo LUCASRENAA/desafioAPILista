@@ -92,14 +92,28 @@ DATABASES = {
     }
 }
 '''
-
+'''
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': 'mydatabase',
     }
 }
+'''
 
+DATABASES = {
+    'default': {
+        'ENGINE': 'sql_server.pyodbc',
+        'HOST': '(LocalDB)\ProjectLocalDB',
+        'PORT': '',
+        'NAME': 'my_db',
+        'USER': 'my_user',
+        'PASSWORD': 'my_password',
+        'OPTIONS': {
+            'driver': 'ODBC Driver 17 for SQL Server',
+        },
+    },
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
