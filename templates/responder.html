@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<script src="http://code.jquery.com/jquery-2.0.3.min.js" type="text/javascript" ></script>
+<div id="test"></div>
+
+<script>
+lista = "";
+async function getContent(){
+    try {
+    const response = await fetch('https://desafioapilista/lista/0')
+    var jsonDoServidor = await response.json();
+
+
+    var titulos = [];
+    var datas = [];
+    console.log(jsonDoServidor.length);
+    var i;
+    for( i = 0; i < parseInt(jsonDoServidor.length); i++)
+    {
+    titulos.push(jsonDoServidor[i].titulo);
+    datas.push(jsonDoServidor[i].data);
+    }
+var tabela = document.createElement("table");
+var cabecalho = document.createElement("thead");
+var corpo = document.createElement("tbody");
+var tr = document.createElement("tr");
+var th = document.createElement("th");
+var th2 = document.createElement("th");
+
+th.innerText = "Titulo"
+tr.appendChild(th);
+
+th2.innerText = "Data"
+tr.appendChild(th2);
+
+
+
+
+var select = document.createElement("select");
+select.setAttribute("name", "titulo");
+select.setAttribute("id", "idSelect");
+
+
+
+
+    for(var i = 0; i < parseInt(jsonDoServidor.length); i++)
+    {
+    var tr2 = document.createElement("tr");
+
+var th = document.createElement("td");
+th.innerText = titulos[i];
+var th2 = document.createElement("td");
+th2.innerText = datas[i];
+tr2.appendChild(th)
+tr2.appendChild(th2)
+    corpo.appendChild(tr2);
+
+var option = document.createElement("option");
+option.innerText = titulos[i];
+option.setAttribute("nome", titulos[i]);
+select.appendChild(option);
+
+    }
+
+
+cabecalho.appendChild(tr);
+tabela.appendChild(cabecalho);
+tabela.appendChild(corpo);
+
+document.getElementById("test").appendChild(tabela);
+
+
+
+
+
+
+
+
+
+
+
+document.getElementById("select").appendChild(select);
+console.log(select)
+
+
+
+
+
+
+
+
+
+    return jsonDoServidor;
+    } catch(error){
+    console.log(error)
+    }
+    }
+    jsonDoServidor = getContent();
+</script>
+
+
+<div id="select">
+
+</div>
+<button onclick="pegarSelecionado()">submit</button>
+<script>
+
+function pegarSelecionado(){
+
+async function getContent(){
+    try {
+    var box = document.getElementById('idSelect');
+    conceptName = box.options[box.selectedIndex].text;
+    var response_Itens = await fetch('https://desafioapilista/item/0')
+    var jsonItens = await response_Itens.json();
+    console.log(jsonItens)
+    var node = document.getElementById("itens");
+    node.innerHTML = "";
+
+        var id = "itens";
+        var classAttr = "class";
+        var div = '<div id='+id+' '+classAttr+'="world" >Blah</div>';
+        document.getElementsByTagName("body").innerHTML = div;
+
+
+        for( i = 0; i < parseInt(jsonItens.length); i++)
+        {
+        console.log(conceptName)
+        console.log(jsonItens[i].titulo)
+        if (jsonItens[i].titulo === conceptName){
+        var paragrafo = document.createElement('p');
+        paragrafo.innerText = jsonItens[i].nome;
+        document.getElementById("itens").appendChild(paragrafo);
+
+
+        var id = document.createElement('input');
+                id.setAttribute("id","id"+jsonItens[i].id);
+                                id.setAttribute("hidden","");
+
+                                id.setAttribute("value",jsonItens[i].id);
+
+                                        document.getElementById("itens").appendChild(id);
+
+       var resposta = document.createElement('input');
+                resposta.setAttribute("id","resposta"+jsonItens[i].id);
+                                        document.getElementById("itens").appendChild(resposta);
+
+        var button = document.createElement('button');
+                button.setAttribute("id","button"+jsonItens[i].id);
+                button.innerHTML = "submit";
+                button.setAttribute("onclick","Resposta("+jsonItens[i].id+")");
+
+
+                                        document.getElementById("itens").appendChild(button);
+
+}
+        }
+
+
+
+    }
+
+    catch(error){
+    console.log(error)
+    }
+    }
+    jsonDoServidor = getContent();
+    }
+</script>
+
+
+<input id="idItem" hidden>
+<input id="resposta" hidden>
+<h1>Coloque o token aqui</h1>
+<input id="token" value="eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6ImFkbWluIiwiZXhwIjoxNjIyMDY4NjM5LCJlbWFpbCI6IiJ9.NToyMSaSnXGDW3GUpNqFFwmKwQ8leGYMOLpMv1Z0l7c">
+<p></p>
+<script>
+function Resposta(id){
+document.getElementById('idItem').value = document.getElementById('id'+id).value
+document.getElementById('resposta').value = document.getElementById('resposta'+id).value
+
+var dadosForm = {
+    idItem: document.getElementById('idItem').value,
+    resposta: document.getElementById('resposta').value,
+    token: document.getElementById('token').value
+};
+alert(document.getElementById('idItem').value)
+
+$.ajax({
+    url : "https://desafioapilista/resposta/0",
+    method : "POST",
+    contentType : 'application/json',
+    dataType : 'json',
+    data : JSON.stringify(dadosForm)
+}).done(function(res) {
+    console.log(res)
+});
+}
+
+</script>
+ <form action ="acao/acao" method="post">{% csrf_token %}
+<div id="itens"></div>
+<button onclick="Resposta()">Submit</button>
+    </form>
+
+
+
+
+
+<h1>Veja suas respostas</h1>
+<button onclick="chamarRespostas()">Clique aqui depois de colocar o token</button>
+<div id="respostas"></div>
+
+<script>
+function chamarRespostas(){
+    var dadosForm = {
+    token: document.getElementById('token').value
+};
+
+$.ajax({
+    url : "https://desafioapilista/resposta/0",
+    method : "GET",
+    contentType : 'application/json',
+    dataType : 'json',
+    data : JSON.stringify(dadosForm)
+}).done(function(res) {
+    console.log(res)
+
+
+
+
+     var titulos = [];
+    var datas = [];
+    console.log(res.length);
+    var i;
+    for( i = 0; i < parseInt(res.length); i++)
+    {
+    titulos.push(res[i].titulo);
+    datas.push(res[i].resposta);
+    }
+var tabela = document.createElement("table");
+var cabecalho = document.createElement("thead");
+var corpo = document.createElement("tbody");
+var tr = document.createElement("tr");
+var th = document.createElement("th");
+var th2 = document.createElement("th");
+
+th.innerText = "Item"
+tr.appendChild(th);
+
+th2.innerText = "Resposta"
+tr.appendChild(th2);
+
+
+
+
+var select = document.createElement("select");
+select.setAttribute("name", "titulo");
+select.setAttribute("id", "idSelect");
+
+
+
+
+    for(var i = 0; i < parseInt(res.length); i++)
+    {
+    var tr2 = document.createElement("tr");
+
+var th = document.createElement("td");
+th.innerText = titulos[i];
+var th2 = document.createElement("td");
+th2.innerText = datas[i];
+tr2.appendChild(th)
+tr2.appendChild(th2)
+    corpo.appendChild(tr2);
+
+var option = document.createElement("option");
+option.innerText = titulos[i];
+option.setAttribute("nome", titulos[i]);
+select.appendChild(option);
+
+    }
+
+
+cabecalho.appendChild(tr);
+tabela.appendChild(cabecalho);
+tabela.appendChild(corpo);
+
+document.getElementById("respostaServidor").appendChild(tabela);
+
+
+
+
+
+
+
+
+
+
+
+document.getElementById("select").appendChild(select);
+});
+}
+</script>
+
+<div id="respostaServidor"></div>
+</body>
+
+</html>

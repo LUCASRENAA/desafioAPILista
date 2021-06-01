@@ -1,0 +1,179 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href='https://fonts.googleapis.com/css?family=Lilita One' rel='stylesheet'>
+
+<link rel="style" type="text/css" href="/static/css/style.css">
+<script>itensVariavel =
+ [
+ {% for item in itens %}{
+  "id_Lista":"{{ item.titulo.id }}",
+ "Item": "{{ item.nome }}",
+ "Resposta":"{{ item.resposta }}"
+ }{% if itens|length  != forloop.counter  %}
+ ,
+ {% endif %}
+ {% endfor %}
+]
+</script>
+
+
+ {% include "cabeca.html" %}
+
+
+
+
+    <link rel="stylesheet" type="text/css" href="/static/css/style.css">
+
+
+
+
+
+
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+
+</head>
+<body>
+
+
+ {% include "padrao_inicio.html" %}
+
+<table class="table table-dark">
+  <thead>
+    <tr>
+      <th scope="col">id</th>
+      <th scope="col">Titulo da lista</th>
+      <th scope="col">Data</th>
+              <th scope="col">Editar</th>
+
+              <th scope="col">Deletar</th>
+
+    </tr>
+  </thead>
+      <script>function abrirItens(listaid){
+var i = 0;
+contador = 0;
+document.querySelector('#chat-log').value = "";
+for(i = 0; i < itensVariavel.length ; i++)
+{
+
+if( itensVariavel[i].id_Lista == listaid)
+{
+contador = contador + 1;
+
+
+document.querySelector('#chat-log').value += (contador + ': ' + itensVariavel[i].Item + '\n');
+
+document.querySelector('#chat-log').value += (itensVariavel[i].Resposta + '\n');
+
+
+
+}
+}
+
+}</script>
+{% for lista in listas %}
+<tbody>
+    <tr>
+      <th scope="row">{{ forloop.counter }}</th>
+
+        <td><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalExemplo" onclick="abrirItens({{ lista.id }})">
+{{ lista.titulo }}</button>
+
+
+      <td>{{ lista.get_data_evento }}</td>
+        <td> <button onclick="editar{{ lista.id }}()">E</button> </td>
+        <td><button onclick="deletar{{ lista.id }}()">X</button></td></td>
+        <script>
+            function deletar{{ lista.id }}(){
+            window.location.href = "submit/{{ lista.id }}/3"
+            }
+             function  editar{{ lista.id }}(){
+    document.getElementById("tipo").value = 2;
+        document.getElementById("id2").value = {{ lista.id }};
+
+     document.getElementById("alterando").innerHTML = "Você tá alterando a lista: <h2>{{ lista.titulo }}</h2> com o id:{{ lista.id }}";
+
+
+    }
+        </script>
+    </tr>
+
+
+
+
+
+
+ {% endfor %}
+
+  </tbody>
+</table>
+<div>
+<form action="submit/0/1" method="POST"> {% csrf_token %}
+      <label id="alterando">
+
+        </label>
+    <h1>Lista</h1>
+    <label>Titulo</label>
+     <input  type="text" name="titulo">
+    <label>Data</label>
+
+        <input type="datetime-local" name="data_evento">
+<p></p>
+     <input hidden value="1"  name="tipo" id="tipo">
+         <input hidden value="1"  name="id2" id="id2">
+
+    <button type="submit">Salvar</button>
+</form>
+    <p>
+    </p>
+    <form action="itens/submit/0/1" method="POST"> {% csrf_token %}
+<h1>Item</h1>
+<label>Titulo</label>
+          <select name="lista" >
+
+            {% for lista  in listas %}
+            <option value={{ lista.titulo }}>{{ lista.titulo }}</option>
+       {% endfor %}
+</select>
+
+    <label>Item</label>
+     <input  type="text" name="item">
+    <label>Resposta</label>
+
+        <input name="resposta">
+    <input hidden value="1"  name="tipo">
+    <button type="submit">Salvar</button>
+</form>
+
+</div>
+
+ {% include "padrao_fim.html" %}
+<!-- Botão para acionar modal -->
+
+
+<!-- Modal -->
+<div class="modal fade" id="modalExemplo" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Título do modal</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" id="tabela">
+ <textarea id="chat-log" cols="50" rows="5" disabled></textarea>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+        <button type="button" class="btn btn-primary">Salvar mudanças</button>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
