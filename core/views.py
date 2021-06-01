@@ -44,12 +44,27 @@ def submit_login(request):
     if request.POST:
         username = request.POST.get('username')
         password = request.POST.get('password')
-        usuario = authenticate(username=username,password=password)
-        if usuario is not None:
-            login(request,usuario)
-            return redirect('/')
+        if username != "":
+            usuario = authenticate(username=username,password=password)
+            if usuario is not None:
+                login(request,usuario)
+                return redirect('/')
+            else:
+                messages.error(request,"Usuário ou senha invalido")
         else:
-            messages.error(request,"Usuário ou senha invalido")
+            email = request.POST.get('email')
+            print("aqui")
+            print(email)
+
+            username = str(User.objects.get(email=email))
+            if username != "":
+                usuario = authenticate(username=username, password=password)
+                if usuario is not None:
+                    login(request, usuario)
+                    return redirect('/')
+                else:
+                    messages.error(request, "Usuário ou senha invalido")
+
 
 
     return  redirect('/')
@@ -72,12 +87,11 @@ def submit_registro(request):
             User.objects.get(email = email)
 
 
-            return HttpResponse('<h1> Usuario já cadastrado </h1>')
+            return HttpResponse('{"erro":"Usuario já cadastrado"}')
 
         print("hey")
         return redirect('/')
-    return HttpResponse('<h1> faça um post </h1>')
-
+    return HttpResponse('{"erro":"faça um post"}')
 
 
 @login_required(login_url='/login/')
@@ -111,7 +125,7 @@ def inicio_submit(request,id,tipo):
             if tipo == str(1):
                 try:
                     Lista.objects.get(titutlo=titulo)
-                    return HttpResponse("Lista com esse titulo já existe")
+                    return HttpResponse('{"erro":"Lista com esse titulo já existe"}')
                 except:
                     Lista.objects.create(titulo=titulo,data_evento=data_evento,usuario=username_lista)
 
@@ -223,7 +237,7 @@ def lista_id(request,id):
         titulo = response["titulo"]
         try:
             Lista.objects.get(titutlo=titulo)
-            return HttpResponse("Lista com esse titulo já existe")
+            return HttpResponse('{"erro":"Lista com esse titulo já existe"}')
         except:
             Lista.objects.create(titulo=titulo, data_evento=data, usuario=UserLista)
 
@@ -250,7 +264,8 @@ def lista_id(request,id):
     if request.method == "DELETE":
         lista = Lista.objects.get(id=id)
         lista.delete()
-        return HttpResponse("DELETADO O ID " + str(id) )
+        return HttpResponse('{"sucesso":"ID DELETADO"}')
+
 
 @csrf_exempt
 def item_id(request,id):
@@ -291,7 +306,7 @@ def item_id(request,id):
         try:
             Lista.objects.get(id=int(id))
         except:
-            return HttpResponse("Lista não existe")
+            return HttpResponse('{"erro":"Lista não existe"}')
         token = response["token"]
         UserLista = Tokens.objects.get(token = token).usuario
         UserLista = User.objects.get(username=UserLista)
@@ -308,7 +323,7 @@ def item_id(request,id):
         try:
             Lista.objects.get(id=int(id))
         except:
-            return HttpResponse("Lista não existe")
+            return HttpResponse('{"erro":"Lista não existe"}')
 
         if id != "":
             itens.titulo = Lista.objects.get(id=id)
@@ -324,10 +339,9 @@ def item_id(request,id):
         try:
             Itens.objects.get(id=int(id))
         except:
-            return HttpResponse("Item não existe")
+            return HttpResponse('{"erro":"Item não existe"}')
         lista.delete()
-        return HttpResponse("DELETADO O ID " + str(id) )
-
+        return HttpResponse('{"sucesso":"ID DELETADO"}')
 
 
 @login_required(login_url='/login/')
@@ -371,7 +385,7 @@ def salvarToken(request):
         response = json.loads(request.body)
         nome = response["usuario"]
         senha = response["senha"]
-        response = requests.post("https://desafioapilista/^login/", None,
+        response = requests.post("https://desafioapilista.herokuapp.com/^login/", None,
                                  {"username": str(nome), "password": str(senha)}).json()
         usuario = authenticate(username=nome, password=senha)
         if usuario is not None:
@@ -423,6 +437,8 @@ def resposta_id(request,id):
                     d["titulo"]= str(lista.titulo)
                     d["resposta"] =  str(lista.resposta)
                     d["usuario"] =  str(lista.usuario)
+                    d["lista"] =  str(lista.titulo.titulo.titulo)
+
 
                     d["id"] =  str(lista.id)
 
@@ -438,6 +454,7 @@ def resposta_id(request,id):
                     d["titulo"]= str(lista.titulo)
                     d["resposta"] =  str(lista.resposta)
                     d["usuario"] =  str(lista.usuario)
+                    d["lista"] =  str(lista.titulo.titulo.titulo)
 
                     d["id"] =  str(lista.id)
 
@@ -464,7 +481,8 @@ def resposta_id(request,id):
                     itens_json = {
                         "idItem":str(respostas.titulo.id),
                         "resposta": str(respostas.resposta),
-                        "usuario": str(respostas.usuario)
+                        "usuario": str(respostas.usuario),
+                        "lista": str(respostas.titulo.titulo.titulo)
 
                     }
                     print(itens_json)
@@ -475,7 +493,8 @@ def resposta_id(request,id):
                     itens_json = {
                         "idItem": str(respostas.titulo.id),
                         "resposta": str(respostas.resposta),
-                        "usuario": str(respostas.usuario)
+                        "usuario": str(respostas.usuario),
+                        "lista": str(respostas.titulo.titulo.titulo)
 
                     }
                     print(itens_json)
@@ -500,7 +519,7 @@ def resposta_id(request,id):
             Itens.objects.get(id=int(idItem))
         except:
             print("aqui")
-            return HttpResponse("Item não existe")
+            return HttpResponse('{"erro":"Item não existe"}')
 
 
         Respostas.objects.create(titulo= Itens.objects.get(id=int(idItem)),resposta=item,usuario=UserLista)
@@ -515,7 +534,7 @@ def resposta_id(request,id):
         try:
             Itens.objects.get(id=int(idItem))
         except:
-            return HttpResponse("Item não existe")
+            return HttpResponse('{"erro":"Item não existe"}')
 
         if id != "":
             respostas.idItem = Itens.objects.get(id=int(idItem))
@@ -531,10 +550,9 @@ def resposta_id(request,id):
         try:
             Respostas.objects.get(id=int(id))
         except:
-            return HttpResponse("Respostas não existe")
+            return HttpResponse('{"erro":"Resposta não existe"}')
         lista.delete()
-        return HttpResponse("DELETADO O ID " + str(id) )
-
+        return HttpResponse('{"sucesso":"ID DELETADO"}')
 
 
 def verItens(request):
@@ -574,7 +592,7 @@ def acao(request):
     import requests
     payload ={"idItem":"4","resposta":"alooo","token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6ImFkbWluIiwiZXhwIjoxNjIyMDY4NjM5LCJlbWFpbCI6IiJ9.NToyMSaSnXGDW3GUpNqFFwmKwQ8leGYMOLpMv1Z0l7c"}
 
-    resposta = requests.post("https://desafioapilista/resposta/1", data=payload)
+    resposta = requests.post("https://desafioapilista.herokuapp.com/resposta/1", data=payload)
     print(resposta)
 
 

@@ -29,29 +29,27 @@ from rest_framework_jwt.views import obtain_jwt_token
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('registro/', views.registro),
-
-
     path('registro/submit', views.submit_registro),
-    path('token/pegar', views.salvarToken),
-
+    path('login/', views.login_user),
+    path('login/submit',views.submit_login),
     path('inicio/',views.inicio),
-    path('', views.responder),
-
     path('inicio/submit/<id>/<tipo>', views.inicio_submit),
     path('inicio/itens/submit/<id>/<tipo>', views.inicio_submit_itens),
 
 
-    path('login/', views.login_user),
-    path('login/submit',views.submit_login),
+    path('token/pegar', views.salvarToken),
+
+
+    path('', views.responder),
     path(r'^login/', obtain_jwt_token),
     path('lista/<id>', views.lista_id),
     path('item/<id>', views.item_id),
     path('resposta/<id>', views.resposta_id),
-                  path('verItens/', views.verItens),
-                    path('verItens/<titulo>',views.verItensTitulo),
-                  path('acao/acao', views.acao),
+    path('verItens/', views.verItens),
+    path('verItens/<titulo>',views.verItensTitulo),
+    path('acao/acao', views.acao),
 
-                  path('<qualquercoisa>',RedirectView.as_view(url='inicio/'))
+    path('<qualquercoisa>',RedirectView.as_view(url='/'))
 
 
 ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
